@@ -77,10 +77,7 @@ export class PopupForm extends LitElement {
   }
 
   updated(changedProperties) {
-    if (
-      changedProperties.has("api") ||
-      changedProperties.has("configuration")
-    ) {
+    if (changedProperties.has("api") || changedProperties.has("configuration")) {
       if (this.api && this.configuration) {
         this.init();
       }
@@ -132,6 +129,7 @@ export class PopupForm extends LitElement {
 
     this.shared = this.configuration.shareSelected;
     this.unread = this.configuration.unreadSelected;
+    this.editNotes = this.configuration.editNoteSelected;
 
     // If the bookmark already exists, prefill the form with the existing bookmark
     if (!serverMetadata) {
@@ -142,9 +140,7 @@ export class PopupForm extends LitElement {
     if (existingBookmark) {
       this.existingBookmark = existingBookmark;
       this.title = existingBookmark.title;
-      this.tags = existingBookmark.tag_names
-        ? existingBookmark.tag_names.join(" ")
-        : "";
+      this.tags = existingBookmark.tag_names ? existingBookmark.tag_names.join(" ") : "";
       this.description = existingBookmark.description;
       this.notes = existingBookmark.notes;
       this.unread = existingBookmark.unread;
@@ -204,10 +200,7 @@ export class PopupForm extends LitElement {
       }
 
       // Run singlefile, if configured
-      if (
-        !this.existingBookmark &&
-        this.extensionConfiguration?.runSinglefile
-      ) {
+      if (!this.existingBookmark && this.extensionConfiguration?.runSinglefile) {
         runSinglefile();
       }
     } catch (e) {
@@ -262,8 +255,7 @@ export class PopupForm extends LitElement {
   }
 
   handleInputChange(e, property) {
-    this[property] =
-      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    this[property] = e.target.type === "checkbox" ? e.target.checked : e.target.value;
   }
 
   render() {
@@ -286,17 +278,24 @@ export class PopupForm extends LitElement {
               .value="${this.url}"
               @input="${(e) => this.handleInputChange(e, "url")}"
             />
-            ${this.loading ? html`<i class="form-icon loading"></i>` : ""}
+            ${
+              this.loading
+                ? html`
+                    <i class="form-icon loading"></i>
+                  `
+                : ""
+            }
           </div>
-          ${this.existingBookmark
-            ? html`
-                <div class="form-input-hint text-warning">
-                  This URL is already bookmarked. The form has been prefilled
-                  from the existing bookmark, and saving the form will update
-                  the existing bookmark.
-                </div>
-              `
-            : ""}
+          ${
+            this.existingBookmark
+              ? html`
+                  <div class="form-input-hint text-warning">
+                    This URL is already bookmarked. The form has been prefilled from the existing bookmark, and saving
+                    the form will update the existing bookmark.
+                  </div>
+                `
+              : ""
+          }
         </div>
         <div class="form-group">
           <label class="form-label" for="input-tags">Tags</label>
@@ -307,13 +306,15 @@ export class PopupForm extends LitElement {
             .tags="${this.availableTagNames}"
             @value-change="${this.handleTagsChange}"
           ></ld-tag-autocomplete>
-          ${this.autoTags
-            ? html`
+          ${
+            this.autoTags
+              ? html`
                 <div class="form-input-hint text-success">
                   Auto tags: ${this.autoTags}
                 </div>
               `
-            : ""}
+              : ""
+          }
         </div>
         <div class="form-group">
           <label class="form-label" for="input-title">Title</label>
@@ -327,8 +328,9 @@ export class PopupForm extends LitElement {
           />
         </div>
         <div class="form-group">
-          ${!this.editNotes
-            ? html`
+          ${
+            !this.editNotes
+              ? html`
                 <div class="form-label-row">
                   <label class="form-label" for="input-description"
                     >Description</label
@@ -352,9 +354,11 @@ export class PopupForm extends LitElement {
                   @input="${(e) => this.handleInputChange(e, "description")}"
                 ></textarea>
               `
-            : ""}
-          ${this.editNotes
-            ? html`
+              : ""
+          }
+          ${
+            this.editNotes
+              ? html`
                 <div class="form-label-row">
                   <label class="form-label" for="input-notes">Notes</label>
                   <button
@@ -376,7 +380,8 @@ export class PopupForm extends LitElement {
                   @input="${(e) => this.handleInputChange(e, "notes")}"
                 ></textarea>
               `
-            : ""}
+              : ""
+          }
         </div>
         <div class="form-group d-flex">
           <label class="form-checkbox">
@@ -388,8 +393,9 @@ export class PopupForm extends LitElement {
             <i class="form-icon"></i>
             <span>Mark as unread</span>
           </label>
-          ${this.profile?.enable_sharing
-            ? html`
+          ${
+            this.profile?.enable_sharing
+              ? html`
                 <label class="form-checkbox ml-4">
                   <input
                     type="checkbox"
@@ -400,29 +406,36 @@ export class PopupForm extends LitElement {
                   <span>Share</span>
                 </label>
               `
-            : ""}
+              : ""
+          }
         </div>
         <div class="footer">
-          ${this.saveState === "success"
-            ? html`
+          ${
+            this.saveState === "success"
+              ? html`
                 <div class="result-row text-success">
                   ${icons.success()}
                   <span>Bookmark saved</span>
                 </div>
               `
-            : ""}
-          ${this.saveState === "error"
-            ? html`
+              : ""
+          }
+          ${
+            this.saveState === "error"
+              ? html`
                 <div class="result-row text-error">
                   Error saving bookmark: ${this.errorMessage}
                 </div>
               `
-            : ""}
-          ${this.saveState !== "success"
-            ? html`
+              : ""
+          }
+          ${
+            this.saveState !== "success"
+              ? html`
                 <div class="button-row">
-                  ${this.existingBookmark
-                    ? html`
+                  ${
+                    this.existingBookmark
+                      ? html`
                         <button
                           type="button"
                           class="btn btn-error"
@@ -432,7 +445,8 @@ export class PopupForm extends LitElement {
                           ${icons.delete()}
                         </button>
                       `
-                    : nothing}
+                      : nothing
+                  }
                   <button
                     type="submit"
                     class="btn btn-primary btn-wide ml-auto ${this.saveState}"
@@ -442,7 +456,8 @@ export class PopupForm extends LitElement {
                   </button>
                 </div>
               `
-            : ""}
+              : ""
+          }
         </div>
       </form>
 

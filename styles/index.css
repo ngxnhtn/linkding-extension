@@ -3,14 +3,15 @@ html {
   scrollbar-gutter: initial;
 }
 
-html, body {
+html,
+body {
   padding: 0;
   margin: 0;
 }
 
 body {
-    padding: var(--unit-4);
-    min-width: 400px;
+  padding: var(--unit-4);
+  min-width: 400px;
 }
 
 .bookmark-form {
@@ -80,4 +81,5 @@ body {
 .form-input {
   /* Override responsive styles that change font-size on inputs */
   font-size: var(--font-size) !important;
+  resize: vertical;
 }

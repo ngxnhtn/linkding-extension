@@ -40,17 +40,11 @@ export async function getBrowserMetadata() {
     function getMetadata() {
       const title =
         document.querySelector("title")?.textContent ||
-        document
-          .querySelector('meta[property="og:title"]')
-          ?.getAttribute("content") ||
+        document.querySelector('meta[property="og:title"]')?.getAttribute("content") ||
         "";
       const description =
-        document
-          .querySelector('meta[name="description"]')
-          ?.getAttribute("content") ||
-        document
-          .querySelector('meta[property="og:description"]')
-          ?.getAttribute("content") ||
+        document.querySelector('meta[name="description"]')?.getAttribute("content") ||
+        document.querySelector('meta[property="og:description"]')?.getAttribute("content") ||
         "";
       return { title, description };
     }
@@ -63,43 +57,42 @@ export async function getBrowserMetadata() {
       .then((result) => result[0].result)
       .catch(errorHandler);
   } else {
-    const code = `
-      (function () {
-      const title =
-        document.querySelector("title")?.textContent ||
-        document
-          .querySelector('meta[property="og:title"]')
-          ?.getAttribute("content") ||
-        "";
-      const description =
-        document
-          .querySelector('meta[name="description"]')
-          ?.getAttribute("content") ||
-        document
-          .querySelector('meta[property="og:description"]')
-          ?.getAttribute("content") ||
-        "";
-        return { title, description };
-      })();
-    `;
+    // const code = `
+    //   (function () {
+    //   const title =
+    //     document.querySelector("title")?.textContent ||
+    //     document
+    //       .querySelector('meta[property="og:title"]')
+    //       ?.getAttribute("content") ||
+    //     "";
+    //   const description =
+    //     document
+    //       .querySelector('meta[name="description"]')
+    //       ?.getAttribute("content") ||
+    //     document
+    //       .querySelector('meta[property="og:description"]')
+    //       ?.getAttribute("content") ||
+    //     "";
+    //     return { title, description };
+    //   })();
+    // `;
+
+    console.log(getBrowser());
 
     return getBrowser()
-      .tabs.executeScript(tab.id, { code })
+      .scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["inject.js"],
+      })
       .then((result) => result[0])
       .catch(errorHandler);
   }
 }
 
 export function getStorage() {
-  if (
-    typeof browser !== "undefined" &&
-    typeof browser.storage !== "undefined"
-  ) {
+  if (typeof browser !== "undefined" && typeof browser.storage !== "undefined") {
     return browser.storage.local;
-  } else if (
-    typeof chrome !== "undefined" &&
-    typeof chrome.storage !== "undefined"
-  ) {
+  } else if (typeof chrome !== "undefined" && typeof chrome.storage !== "undefined") {
     return chrome.storage.local;
   } else {
     throw new Error("Storage API not found.");
@@ -118,6 +111,7 @@ export async function getStorageItem(key) {
       data = localStorage.getItem(key);
     } catch (e) {
       // Ignore
+      console.log(e);
     }
   }
 
@@ -136,7 +130,7 @@ export function openOptions() {
 
 export function showBadge(tabId) {
   const browser = getBrowser();
-  const action = browser.browserAction || browser.action;
+  const action = browser.action;
   action.setBadgeText({ text: "★", tabId: tabId });
   action.setBadgeTextColor({ color: "#FFE234", tabId: tabId });
   action.setBadgeBackgroundColor({
@@ -153,7 +147,7 @@ export function removeBadge(tabId) {
 
 export function showSuccessBadge(tabId) {
   const browser = getBrowser();
-  const action = browser.browserAction || browser.action;
+  const action = browser.action;
   action.setBadgeText({ text: "✔", tabId: tabId });
   action.setBadgeTextColor({ color: "#FFFFFF", tabId: tabId });
   action.setBadgeBackgroundColor({

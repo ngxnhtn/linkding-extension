@@ -10,6 +10,7 @@ export class Options extends LitElement {
     default_tags: { type: String, state: true },
     unreadSelected: { type: Boolean, state: true },
     shareSelected: { type: Boolean, state: true },
+    editNoteSelected: { type: Boolean, state: true },
     useBrowserMetadata: { type: Boolean, state: true },
     runSinglefile: { type: Boolean, state: true },
     precacheEnabled: { type: Boolean, state: true },
@@ -26,6 +27,7 @@ export class Options extends LitElement {
     this.default_tags = "";
     this.unreadSelected = false;
     this.shareSelected = false;
+    this.editNoteSelected = false;
     this.useBrowserMetadata = false;
     this.runSinglefile = false;
     this.precacheEnabled = false;
@@ -53,6 +55,7 @@ export class Options extends LitElement {
     this.default_tags = config.default_tags;
     this.unreadSelected = config.unreadSelected;
     this.shareSelected = config.shareSelected;
+    this.editNoteSelected = config.editNoteSelected;
     this.useBrowserMetadata = config.useBrowserMetadata;
     this.runSinglefile = config.runSinglefile;
     this.precacheEnabled = config.precacheEnabled;
@@ -68,6 +71,7 @@ export class Options extends LitElement {
       default_tags: this.default_tags,
       unreadSelected: this.unreadSelected,
       shareSelected: this.shareSelected,
+      editNoteSelected: this.editNoteSelected,
       useBrowserMetadata: this.useBrowserMetadata,
       runSinglefile: this.runSinglefile,
       precacheEnabled: this.precacheEnabled,
@@ -88,8 +92,7 @@ export class Options extends LitElement {
   }
 
   handleInputChange(e, property) {
-    this[property] =
-      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    this[property] = e.target.type === "checkbox" ? e.target.checked : e.target.value;
   }
 
   render() {
@@ -190,9 +193,23 @@ export class Options extends LitElement {
           <label class="form-checkbox">
             <input
               type="checkbox"
+              .checked="${this.editNoteSelected}"
+              @change="${(e) => this.handleInputChange(e, "editNoteSelected")}"
+            />
+            <i class="form-icon"></i>
+            <span>Default to edit notes</span>
+          </label>
+          <div class="form-input-hint">
+            Set Edit in default view instead of Description.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-checkbox">
+            <input
+              type="checkbox"
               .checked="${this.useBrowserMetadata}"
-              @change="${(e) =>
-                this.handleInputChange(e, "useBrowserMetadata")}"
+              @change="${(e) => this.handleInputChange(e, "useBrowserMetadata")}"
             />
             <i class="form-icon"></i>
             <span>Use browser metadata</span>
@@ -266,8 +283,7 @@ export class Options extends LitElement {
             <input
               type="checkbox"
               .checked="${this.closeAddBookmarkWindowOnSave}"
-              @change="${(e) =>
-                this.handleInputChange(e, "closeAddBookmarkWindowOnSave")}"
+              @change="${(e) => this.handleInputChange(e, "closeAddBookmarkWindowOnSave")}"
             />
             <i class="form-icon"></i>
             <span
@@ -282,8 +298,9 @@ export class Options extends LitElement {
           </div>
         </div>
 
-        ${this.closeAddBookmarkWindowOnSave
-          ? html`
+        ${
+          this.closeAddBookmarkWindowOnSave
+            ? html`
               <div class="form-group">
                 <label class="form-label" for="input-close-window-on-save-time"
                   >Popup window close time delay after saving a bookmark<span
@@ -296,11 +313,7 @@ export class Options extends LitElement {
                   type="number"
                   id="input-close-window-on-save-time"
                   .value="${this.closeAddBookmarkWindowOnSaveMs}"
-                  @input="${(e) =>
-                    this.handleInputChange(
-                      e,
-                      "closeAddBookmarkWindowOnSaveMs",
-                    )}"
+                  @input="${(e) => this.handleInputChange(e, "closeAddBookmarkWindowOnSaveMs")}"
                 />
                 <div class="form-input-hint">
                   The time in milliseconds to wait before closing the bookmark
@@ -308,40 +321,45 @@ export class Options extends LitElement {
                 </div>
               </div>
             `
-          : ""}
+            : ""
+        }
 
         <div class="button-row">
-          ${this.isSuccess
-            ? html`
+          ${
+            this.isSuccess
+              ? html`
                 <div class="status text-success mr-2">
                   ${icons.success()}
                   <span>Connection successful</span>
                 </div>
               `
-            : ""}
-          ${this.isError
-            ? html`
-                <div class="status text-error mr-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                    <path d="M12 9v4" />
-                    <path d="M12 16v.01" />
-                  </svg>
-                  <span>Connection failed</span>
-                </div>
-              `
-            : ""}
+              : ""
+          }
+          ${
+            this.isError
+              ? html`
+                  <div class="status text-error mr-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                      <path d="M12 9v4" />
+                      <path d="M12 16v.01" />
+                    </svg>
+                    <span>Connection failed</span>
+                  </div>
+                `
+              : ""
+          }
           <button
             type="submit"
             class="btn btn-primary btn-wide ml-2"
