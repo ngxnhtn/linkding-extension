@@ -41,11 +41,16 @@ export class Popup extends LitElement {
       <ld-popup-form
         .configuration="${this.configuration}"
         .api="${this.api}"
+        class="no-scrollbar"
       ></ld-popup-form>
 
-      ${!this.hasCompleteConfiguration
-        ? html` <ld-popup-intro></ld-popup-intro> `
-        : ""}
+      ${
+        !this.hasCompleteConfiguration
+          ? html`
+              <ld-popup-intro></ld-popup-intro>
+            `
+          : ""
+      }
     `;
   }
 }

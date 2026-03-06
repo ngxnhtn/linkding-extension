@@ -83,3 +83,12 @@ body {
   font-size: var(--font-size) !important;
   resize: vertical;
 }
+
+/* 1. For Chrome, Safari, and newer versions of Edge */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.note-field {
+  padding-top: 0.5rem;
+}

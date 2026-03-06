@@ -41,6 +41,7 @@ export class PopupForm extends LitElement {
     extensionConfiguration: { type: Object, state: true },
     loading: { type: Boolean, state: true },
     deleteConfirmVisible: { type: Boolean, state: true },
+    metadata: { type: Object, state: true },
   };
 
   constructor() {
@@ -67,6 +68,7 @@ export class PopupForm extends LitElement {
     this.extensionConfiguration = null;
     this.loading = false;
     this.deleteConfirmVisible = false;
+    this.metadata = null;
   }
 
   createRenderRoot() {
@@ -129,6 +131,12 @@ export class PopupForm extends LitElement {
     ]);
 
     this.loading = false;
+
+    this.metadata = {
+      browserMetadata: browserMetadata,
+      serverMetadata: serverMetadata.metadata,
+      useBrowserMetadata: this.configuration.useBrowserMetadata,
+    };
 
     if (this.configuration.useBrowserMetadata) {
       this.title = browserMetadata.title;
@@ -261,6 +269,19 @@ export class PopupForm extends LitElement {
     this.editNotes = !this.editNotes;
   }
 
+  toggleDesc() {
+    console.log(this.metadata);
+
+    this.metadata.useBrowserMetadata = !this.metadata.useBrowserMetadata;
+    if (this.metadata.useBrowserMetadata) {
+      this.description = this.metadata.browserMetadata.description;
+      this.title = this.metadata.browserMetadata.title;
+    } else {
+      this.description = this.metadata.serverMetadata.description;
+      this.title = this.metadata.serverMetadata.title;
+    }
+  }
+
   handleTagsChange(e) {
     this.tags = e.detail.value;
   }
@@ -328,7 +349,19 @@ export class PopupForm extends LitElement {
           }
         </div>
         <div class="form-group">
+        <div class="form-label-row">
           <label class="form-label" for="input-title">Title</label>
+          <button
+                    type="button"
+                    class="btn btn-link"
+                    @click="${(e) => {
+                      e.preventDefault();
+                      this.toggleDesc();
+                    }}"
+                  >
+                    ${this.metadata ? (this.metadata.useBrowserMetadata ? "Browser" : "Server") : ""}
+                  </button>
+                  </div>
           <input
             class="form-input"
             type="text"
@@ -339,10 +372,8 @@ export class PopupForm extends LitElement {
           />
         </div>
         <div class="form-group">
-          ${
-            !this.editNotes
-              ? html`
-                <div class="form-label-row">
+
+          <div class="form-label-row">
                   <label class="form-label" for="input-description"
                     >Description</label
                   >
@@ -351,10 +382,10 @@ export class PopupForm extends LitElement {
                     class="btn btn-link"
                     @click="${(e) => {
                       e.preventDefault();
-                      this.toggleNotes();
+                      this.toggleDesc();
                     }}"
                   >
-                    Edit notes
+                    ${this.metadata ? (this.metadata.useBrowserMetadata ? "Browser" : "Server") : ""}
                   </button>
                 </div>
                 <textarea
@@ -364,24 +395,9 @@ export class PopupForm extends LitElement {
                   placeholder="${this.descriptionPlaceholder}"
                   @input="${(e) => this.handleInputChange(e, "description")}"
                 ></textarea>
-              `
-              : ""
-          }
-          ${
-            this.editNotes
-              ? html`
-                <div class="form-label-row">
+
+          <div class="form-label-row note-field">
                   <label class="form-label" for="input-notes">Notes</label>
-                  <button
-                    type="button"
-                    class="btn btn-link"
-                    @click="${(e) => {
-                      e.preventDefault();
-                      this.toggleNotes();
-                    }}"
-                  >
-                    Edit description
-                  </button>
                 </div>
                 <textarea
                   class="form-input"
@@ -390,9 +406,6 @@ export class PopupForm extends LitElement {
                   .value="${this.notes}"
                   @input="${(e) => this.handleInputChange(e, "notes")}"
                 ></textarea>
-              `
-              : ""
-          }
         </div>
         <div class="form-group d-flex">
           <label class="form-checkbox">
