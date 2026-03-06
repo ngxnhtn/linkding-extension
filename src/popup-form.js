@@ -8,6 +8,9 @@ import {
   runSinglefile,
   removeBadge,
   createTab,
+  domainCheck,
+  getOriginalUrlFromReadeck,
+  getOriginalUrlFromMiniflux,
 } from "./browser.js";
 import { loadServerMetadata, clearCachedServerMetadata } from "./cache.js";
 import { getProfile, updateProfile } from "./profile.js";
@@ -110,11 +113,19 @@ export class PopupForm extends LitElement {
     this.tabInfo = await getCurrentTabInfo();
     this.url = this.tabInfo.url;
 
+    if (domainCheck(this.configuration.readeckDomain, this.url)) {
+      this.url = await getOriginalUrlFromReadeck();
+    }
+
+    if (domainCheck(this.configuration.minifluxDomain, this.url)) {
+      this.url = await getOriginalUrlFromMiniflux();
+    }
+
     this.loading = true;
 
     const [serverMetadata, browserMetadata] = await Promise.all([
       loadServerMetadata(this.url),
-      getBrowserMetadata(this.url),
+      getBrowserMetadata(),
     ]);
 
     this.loading = false;

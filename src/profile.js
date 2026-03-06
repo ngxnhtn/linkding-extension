@@ -21,6 +21,8 @@ export async function updateProfile() {
   } catch (e) {
     // Linkding <v1.22 does not support the profile API
     // In that case return null
+    console.log(e);
+
     return null;
   }
 }

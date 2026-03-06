@@ -18,6 +18,8 @@ export class Options extends LitElement {
     closeAddBookmarkWindowOnSaveMs: { type: Number, state: true },
     isSuccess: { type: Boolean, state: true },
     isError: { type: Boolean, state: true },
+    readeckDomain: { type: String, state: true },
+    minifluxDomain: { type: String, state: true },
   };
 
   constructor() {
@@ -35,6 +37,8 @@ export class Options extends LitElement {
     this.closeAddBookmarkWindowOnSaveMs = 500;
     this.isSuccess = false;
     this.isError = false;
+    this.readeckDomain = "";
+    this.minifluxDomain = "";
   }
 
   createRenderRoot() {
@@ -61,6 +65,8 @@ export class Options extends LitElement {
     this.precacheEnabled = config.precacheEnabled;
     this.closeAddBookmarkWindowOnSave = config.closeAddBookmarkWindowOnSave;
     this.closeAddBookmarkWindowOnSaveMs = config.closeAddBookmarkWindowOnSaveMs;
+    this.readeckDomain = config.readeckDomain;
+    this.minifluxDomain = config.minifluxDomain;
   }
 
   async handleSubmit(e) {
@@ -77,6 +83,8 @@ export class Options extends LitElement {
       precacheEnabled: this.precacheEnabled,
       closeAddBookmarkWindowOnSave: this.closeAddBookmarkWindowOnSave,
       closeAddBookmarkWindowOnSaveMs: this.closeAddBookmarkWindowOnSaveMs,
+      readeckDomain: this.readeckDomain,
+      minifluxDomain: this.minifluxDomain,
     };
 
     const testResult = await new LinkdingApi(config).testConnection(config);
@@ -124,6 +132,7 @@ export class Options extends LitElement {
             path or a trailing slash
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label" for="input-token"
             >API Authentication Token <span class="text-error">*</span></label
@@ -141,6 +150,41 @@ export class Options extends LitElement {
             your linkding settings page.
           </div>
         </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-base-url"
+            >Readeck Domain</label
+          >
+          <input
+            class="form-input"
+            type="text"
+            id="input-base-url"
+            placeholder="https://linkding.mydomain.com"
+            .value="${this.readeckDomain}"
+            @input="${(e) => this.handleInputChange(e, "readeckDomain")}"
+          />
+          <div class="form-input-hint">
+            Your Readeck Domain
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-base-url"
+            >Readeck Domain</label
+          >
+          <input
+            class="form-input"
+            type="text"
+            id="input-base-url"
+            placeholder="https://linkding.mydomain.com"
+            .value="${this.minifluxDomain}"
+            @input="${(e) => this.handleInputChange(e, "minifluxDomain")}"
+          />
+          <div class="form-input-hint">
+            Your Readeck Domain
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label" for="input-default-tags"
             >Default Tags</label

@@ -16,12 +16,103 @@ export async function getCurrentTabInfo() {
   };
 }
 
+export function domainCheck(domain, url) {
+  try {
+    // 1. Parse the URL
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname; // e.g., "sub.example.com"
+
+    // 2. Check if the hostname is exactly the domain
+    // OR if it ends with ".domain" (to catch subdomains)
+    return hostname === domain || hostname.endsWith("." + domain);
+  } catch (e) {
+    // Handle invalid URLs
+    console.log(e);
+    return false;
+  }
+}
+
 function isFirefox() {
   return typeof browser !== "undefined";
 }
 
 function useChromeScripting() {
   return typeof chrome !== "undefined" && !!chrome.scripting;
+}
+
+export async function getOriginalUrlFromReadeck() {
+  const tabs = await getBrowser().tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  const tab = tabs && tabs[0];
+
+  async function readeckInject() {
+    const pathname = window.location.pathname;
+    const paths = pathname.split("/");
+    const id = paths[2];
+
+    const reservedDomain = [
+      "unread",
+      "favorites",
+      "archives",
+      "articles",
+      "pictures",
+      "labels",
+      "highlights",
+      "collections",
+    ];
+
+    try {
+      if (!id || reservedDomain.indexOf(id) !== -1) {
+        return window.location.href;
+      } else {
+        const res = await fetch(`https://${window.location.hostname}/api/bookmarks/${id}`);
+        const result = await res.json();
+        return result.url;
+      }
+    } catch (e) {
+      console.log(e);
+      return window.location.href;
+    }
+  }
+
+  return getBrowser()
+    .scripting.executeScript({
+      target: { tabId: tab.id },
+      func: readeckInject,
+      injectImmediately: true,
+    })
+    .then((result) => result[0].result);
+}
+
+export async function getOriginalUrlFromMiniflux() {
+  const tabs = await getBrowser().tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  const tab = tabs && tabs[0];
+
+  function minifluxInject() {
+    const el = document.getElementsByClassName("entry-external-link");
+    if (el.length == 0) {
+      return window.location.href;
+    } else {
+      const articleEl = el[0].getElementsByTagName("a");
+      if (articleEl.length == 0) {
+        return window.location.href;
+      } else {
+        return articleEl[0].href;
+      }
+    }
+  }
+
+  return getBrowser()
+    .scripting.executeScript({
+      target: { tabId: tab.id },
+      func: minifluxInject,
+    })
+    .then((result) => result[0].result);
 }
 
 export async function getBrowserMetadata() {
